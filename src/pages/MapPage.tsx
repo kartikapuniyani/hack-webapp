@@ -13,6 +13,12 @@ const MapContainer = styled.div`
   position: relative;
 `;
 
+const UserWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+`;
 const MapPage: React.FC = () => {
   const [, setRoadIssues] = useAtom(roadIssuesAtom);
   const [, setMapViewport] = useAtom(mapViewportAtom);
@@ -26,13 +32,13 @@ const MapPage: React.FC = () => {
 
   return (
     <div>
-      <CitySearch />
-      <MapContainer>
+      <UserWrapper>
+        <CitySearch />
         <MapFilters />
+      </UserWrapper>
+      <MapContainer>
         <RoadIssuesMap />
-        <MapLegend />
       </MapContainer>
-      Hello
     </div>
   );
 };

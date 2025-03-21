@@ -4,7 +4,7 @@ import styled from "styled-components";
 const LegendContainer = styled.div`
   position: absolute;
   bottom: ${(props) => props.theme.spacing.md};
-  right: ${(props) => props.theme.spacing.md};
+  left: ${(props) => props.theme.spacing.md};
   background-color: white;
   padding: ${(props) => props.theme.spacing.sm};
   border-radius: 4px;

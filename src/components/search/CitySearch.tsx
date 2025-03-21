@@ -8,9 +8,13 @@ import {
   searchQueryAtom,
 } from "../../store/atoms";
 import { fetchMockDataForCity } from "../../utils/mockData";
+import { IoSearch } from "react-icons/io5";
+import { get } from "../../api/apiClient";
 
 const SearchContainer = styled.div`
   margin-bottom: ${(props) => props.theme.spacing.md};
+  position: relative;
+  width: 25rem;
 `;
 
 const SearchForm = styled.form`
@@ -24,6 +28,8 @@ const SearchInput = styled.input`
   border: 1px solid #ddd;
   border-radius: 4px 0 0 4px;
   font-size: 1rem;
+  background-color: #fff;
+  color: #333;
 
   &:focus {
     outline: none;
@@ -33,31 +39,29 @@ const SearchInput = styled.input`
 
 const SearchButton = styled.button`
   background-color: ${(props) => props.theme.colors.primary};
-  color: white;
-  border: 1px solid ${(props) => props.theme.colors.primary};
+  color: #333;
   border-radius: 0 4px 4px 0;
+  border: 1px solid #ccc;
+  border-left: none;
   padding: ${(props) => props.theme.spacing.sm};
   cursor: pointer;
   font-size: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: white;
+  outline: none;
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.secondary};
-    border-color: ${(props) => props.theme.colors.secondary};
-  }
-
-  &:disabled {
-    background-color: #ccc;
-    border-color: #ccc;
-    cursor: not-allowed;
+    outline: none;
   }
 `;
 
 const SearchResults = styled.div`
   margin-top: ${(props) => props.theme.spacing.sm};
-
+  position: absolute;
+  z-index: 2;
+  width: 100%;
   .suggestions {
     background: white;
     border: 1px solid #ddd;
@@ -105,6 +109,13 @@ const CitySearch: React.FC = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const suggestionsRef = useRef<HTMLUListElement>(null);
 
+  const getData = async () => {
+    const result = await get(
+      "api/potholes/city/gurgaon/nearby?latitude=37.7749&longitude=-122.4194&radiusKm=5"
+    );
+    console.log("result", result);
+  };
+
   // Filter suggestions based on input
   const filteredSuggestions = popularCities.filter((city) =>
     city.toLowerCase().includes(searchQuery.toLowerCase())
@@ -127,7 +138,7 @@ const CitySearch: React.FC = () => {
     };
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
 
@@ -142,7 +153,7 @@ const CitySearch: React.FC = () => {
     setIsLoading(false);
   };
 
-  const handleSuggestionClick = (city: string) => {
+  const handleSuggestionClick = async (city: string) => {
     setSearchQuery(city);
     setShowSuggestions(false);
 
@@ -150,6 +161,8 @@ const CitySearch: React.FC = () => {
 
     // Fetch mock data for the selected city
     const { issues, viewport } = fetchMockDataForCity(city);
+
+    await getData();
 
     // Update state
     setRoadIssues(issues);
@@ -168,7 +181,7 @@ const CitySearch: React.FC = () => {
           onFocus={() => setShowSuggestions(true)}
         />
         <SearchButton type="submit" disabled={isLoading}>
-          {isLoading ? "Loading..." : "Search"}
+          <IoSearch />
         </SearchButton>
       </SearchForm>
 

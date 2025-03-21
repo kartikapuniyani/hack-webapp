@@ -14,6 +14,6 @@ export const mapViewportAtom = atom<MapViewport>({
 
 // Filter settings
 export const showPotholesAtom = atom<boolean>(true);
-export const showSpeedBreakersAtom = atom<boolean>(true);
+export const showSpeedBreakersAtom = atom<boolean>(false);
 export const searchQueryAtom = atom<string>("");
 export const isLoadingAtom = atom<boolean>(false);

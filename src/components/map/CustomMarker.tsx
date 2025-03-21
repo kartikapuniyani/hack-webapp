@@ -9,8 +9,8 @@ const MarkerContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   position: relative;
@@ -57,7 +57,7 @@ const IconWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 22px;
+  font-size: 16px;
 `;
 
 /**
