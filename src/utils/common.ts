@@ -7,7 +7,7 @@ export const transformLatLongData = (data: any[]): RoadIssue[] => {
     type: d.anomalyType === "POTHOLE" ? "pothole" : "speedBreaker",
     id: d.id,
     position: d.center,
-    reportedAt: new Date(d.reportDate),
+    reportedAt: new Date(d.lastReportDate),
     severity:
       d.count < 5
         ? 1

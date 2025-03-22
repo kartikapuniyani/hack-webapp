@@ -159,7 +159,7 @@ const CustomInfoWindow: React.FC<CustomInfoWindowProps> = ({
       day: "numeric",
     });
   };
-  console.log("issue", issue);
+
   return (
     <InfoWindow
       position={{ lat: issue.position.lat, lng: issue.position.lon }}
