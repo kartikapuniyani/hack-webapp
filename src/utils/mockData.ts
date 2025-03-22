@@ -37,21 +37,12 @@ export const generateMockIssues = (
   return issues;
 };
 
-// Pre-generated mock data for major cities
 export const cityDataMap: Record<
   string,
   { lat: number; lng: number; zoom: number }
 > = {
   "new york": { lat: 40.7128, lng: -74.006, zoom: 12 },
-  "los angeles": { lat: 34.0522, lng: -118.2437, zoom: 12 },
-  chicago: { lat: 41.8781, lng: -87.6298, zoom: 12 },
-  houston: { lat: 29.7604, lng: -95.3698, zoom: 12 },
-  phoenix: { lat: 33.4484, lng: -112.074, zoom: 12 },
-  philadelphia: { lat: 39.9526, lng: -75.1652, zoom: 12 },
-  "san antonio": { lat: 29.4241, lng: -98.4936, zoom: 12 },
-  "san diego": { lat: 32.7157, lng: -117.1611, zoom: 12 },
-  dallas: { lat: 32.7767, lng: -96.797, zoom: 12 },
-  "san jose": { lat: 37.3382, lng: -121.8863, zoom: 12 },
+  gurgaon: { lat: 28.4595, lng: 77.0266, zoom: 12 },
 };
 
 // Fetch mock data for a given city

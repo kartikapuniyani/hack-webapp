@@ -28,6 +28,8 @@ import {
   FiLoader,
   FiInfo,
   FiThermometer,
+  FiChevronDown,
+  FiChevronUp,
 } from "react-icons/fi";
 import { TbRoad, TbRoadOff } from "react-icons/tb";
 import { MdSpeed } from "react-icons/md";
@@ -90,6 +92,7 @@ const ControlPanel = styled(Card)`
   padding: 20px;
   z-index: 10;
   width: 280px;
+  transition: height 0.3s ease-in-out;
 `;
 
 const ControlHeader = styled.div`
@@ -110,6 +113,34 @@ const ControlHeader = styled.div`
 const ControlHeaderText = styled.div`
   display: flex;
   align-items: center;
+`;
+
+const MinimizeButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  transition: color 0.2s ease;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &:hover {
+    color: #1e293b;
+    background-color: #f1f5f9;
+  }
+`;
+
+const ControlContent = styled.div<{ $isMinimized: boolean }>`
+  transition: all 0.3s ease;
+  overflow: hidden;
+  max-height: ${(props) => (props.$isMinimized ? "0px" : "500px")};
+  opacity: ${(props) => (props.$isMinimized ? 0 : 1)};
 `;
 
 const ControlGroup = styled.div`
@@ -342,9 +373,10 @@ const RoadIssuesMap: React.FC = () => {
     showSpeedBreakersAtom
   );
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [showHeatmap, setShowHeatmap] = useState<boolean>(true);
-  const [showMarkers, setShowMarkers] = useState<boolean>(true);
-  const [showLegend, setShowLegend] = useState<boolean>(true);
+  const [showHeatmap, setShowHeatmap] = useState(false);
+  const [showMarkers, setShowMarkers] = useState(true);
+  const [showLegend, setShowLegend] = useState(true);
+  const [isControlsMinimized, setIsControlsMinimized] = useState(false);
   const [heatmapData, setHeatmapData] = useState<google.maps.LatLng[]>([]);
   const [heatmapPotholes, setHeatmapPotholes] = useState<google.maps.LatLng[]>(
     []
@@ -376,7 +408,6 @@ const RoadIssuesMap: React.FC = () => {
         (issue) =>
           new window.google.maps.LatLng(issue.position.lat, issue.position.lng)
       );
-      console.log("allPoints", allPoints);
       setHeatmapData(allPoints);
 
       // Prepare pothole points
@@ -425,6 +456,11 @@ const RoadIssuesMap: React.FC = () => {
     setSelectedIssue(null);
   }, [setSelectedIssue]);
 
+  // Toggle controls minimization
+  const toggleControlsMinimized = () => {
+    setIsControlsMinimized(!isControlsMinimized);
+  };
+
   // Custom map styles
   const mapStyles = [
     {
@@ -469,7 +505,7 @@ const RoadIssuesMap: React.FC = () => {
     styles: mapStyles,
     minZoom: 3,
     maxZoom: 19,
-    gestureHandling: "greedy" as google.maps.GestureHandlingOptions,
+    gestureHandling: "greedy",
   };
 
   // Heatmap options
@@ -506,7 +542,6 @@ const RoadIssuesMap: React.FC = () => {
 
   // Determine which heatmap data to show based on filters
   const getHeatmapData = () => {
-    console.log("heatmapData", heatmapData);
     if (showPotholes && showSpeedBreakers) {
       return heatmapData;
     } else if (showPotholes) {
@@ -601,102 +636,108 @@ const RoadIssuesMap: React.FC = () => {
                 <FiMap />
                 Map Controls
               </ControlHeaderText>
+              <MinimizeButton onClick={toggleControlsMinimized}>
+                {isControlsMinimized ? <FiChevronDown /> : <FiChevronUp />}
+              </MinimizeButton>
             </ControlHeader>
-            <Divider />
 
-            <SectionTitle>
-              <TbRoad />
-              Issue Types
-            </SectionTitle>
-            <ControlGroup>
-              <ToggleContainer>
-                <ToggleLabel>
-                  <TbRoadOff />
-                  Potholes
-                </ToggleLabel>
-                <div>
-                  <ToggleCheckbox
-                    type="checkbox"
-                    id="potholes-toggle"
-                    checked={showPotholes}
-                    onChange={() => setShowPotholes(!showPotholes)}
-                  />
-                  <ToggleSlider />
-                </div>
-              </ToggleContainer>
+            <ControlContent $isMinimized={isControlsMinimized}>
+              <Divider />
 
-              <ToggleContainer>
-                <ToggleLabel>
-                  <MdSpeed />
-                  Speed Breakers
-                </ToggleLabel>
-                <div>
-                  <ToggleCheckbox
-                    type="checkbox"
-                    id="speedbreakers-toggle"
-                    checked={showSpeedBreakers}
-                    onChange={() => setShowSpeedBreakers(!showSpeedBreakers)}
-                  />
-                  <ToggleSlider />
-                </div>
-              </ToggleContainer>
-            </ControlGroup>
+              <SectionTitle>
+                <TbRoad />
+                Issue Types
+              </SectionTitle>
+              <ControlGroup>
+                <ToggleContainer>
+                  <ToggleLabel>
+                    <TbRoadOff />
+                    Potholes
+                  </ToggleLabel>
+                  <div>
+                    <ToggleCheckbox
+                      type="checkbox"
+                      id="potholes-toggle"
+                      checked={showPotholes}
+                      onChange={() => setShowPotholes(!showPotholes)}
+                    />
+                    <ToggleSlider />
+                  </div>
+                </ToggleContainer>
 
-            <Divider />
+                <ToggleContainer>
+                  <ToggleLabel>
+                    <MdSpeed />
+                    Speed Breakers
+                  </ToggleLabel>
+                  <div>
+                    <ToggleCheckbox
+                      type="checkbox"
+                      id="speedbreakers-toggle"
+                      checked={showSpeedBreakers}
+                      onChange={() => setShowSpeedBreakers(!showSpeedBreakers)}
+                    />
+                    <ToggleSlider />
+                  </div>
+                </ToggleContainer>
+              </ControlGroup>
 
-            <SectionTitle>
-              <FiLayers />
-              Display Options
-            </SectionTitle>
-            <ControlGroup>
-              <ToggleContainer>
-                <ToggleLabel>
-                  <FiThermometer />
-                  Show Heatmap
-                </ToggleLabel>
-                <div>
-                  <ToggleCheckbox
-                    type="checkbox"
-                    id="heatmap-toggle"
-                    checked={showHeatmap}
-                    onChange={() => setShowHeatmap(!showHeatmap)}
-                  />
-                  <ToggleSlider />
-                </div>
-              </ToggleContainer>
+              <Divider />
 
-              <ToggleContainer>
-                <ToggleLabel>
-                  <FiMapPin />
-                  Show Markers
-                </ToggleLabel>
-                <div>
-                  <ToggleCheckbox
-                    type="checkbox"
-                    id="markers-toggle"
-                    checked={showMarkers}
-                    onChange={() => setShowMarkers(!showMarkers)}
-                  />
-                  <ToggleSlider />
-                </div>
-              </ToggleContainer>
+              <SectionTitle>
+                <FiLayers />
+                Display Options
+              </SectionTitle>
+              <ControlGroup>
+                <ToggleContainer>
+                  <ToggleLabel>
+                    <FiThermometer />
+                    Show Heatmap
+                  </ToggleLabel>
+                  <div>
+                    <ToggleCheckbox
+                      type="checkbox"
+                      id="heatmap-toggle"
+                      checked={showHeatmap}
+                      onChange={() => setShowHeatmap(!showHeatmap)}
+                    />
+                    <ToggleSlider />
+                  </div>
+                </ToggleContainer>
 
-              <ToggleContainer>
-                <ToggleLabel>
-                  <FiInfo />
-                  Show Legend
-                </ToggleLabel>
-                <div>
-                  <ToggleCheckbox
-                    type="checkbox"
-                    id="legend-toggle"
-                    checked={showLegend}
-                    onChange={() => setShowLegend(!showLegend)}
-                  />
-                  <ToggleSlider />
-                </div>
-              </ToggleContainer>
-            </ControlGroup>
+                <ToggleContainer>
+                  <ToggleLabel>
+                    <FiMapPin />
+                    Show Markers
+                  </ToggleLabel>
+                  <div>
+                    <ToggleCheckbox
+                      type="checkbox"
+                      id="markers-toggle"
+                      checked={showMarkers}
+                      onChange={() => setShowMarkers(!showMarkers)}
+                    />
+                    <ToggleSlider />
+                  </div>
+                </ToggleContainer>
+
+                <ToggleContainer>
+                  <ToggleLabel>
+                    <FiInfo />
+                    Show Legend
+                  </ToggleLabel>
+                  <div>
+                    <ToggleCheckbox
+                      type="checkbox"
+                      id="legend-toggle"
+                      checked={showLegend}
+                      onChange={() => setShowLegend(!showLegend)}
+                    />
+                    <ToggleSlider />
+                  </div>
+                </ToggleContainer>
+              </ControlGroup>
+            </ControlContent>
           </ControlPanel>
 
           {/* Legend */}
@@ -742,11 +783,11 @@ const RoadIssuesMap: React.FC = () => {
 
           {/* Markers Layer */}
           {showMarkers &&
-            filteredIssues.map((issue: RoadIssue) => (
+            filteredIssues.map((issue) => (
               <CustomMarker
                 key={issue.id}
                 position={issue.position}
-                type={issue.type as "pothole" | "speedBreaker"}
+                type={issue.type}
                 onClick={() => handleMarkerClick(issue)}
               />
             ))}

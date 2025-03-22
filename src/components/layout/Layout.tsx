@@ -32,7 +32,7 @@ const SidebarHeader = styled.div`
 const Logo = styled.div<{ $isOpen: boolean }>`
   font-size: 1.2rem;
   font-weight: 600;
-  color: ${(props) => props.theme.colors.primary};
+  color: #f72584;
   opacity: ${(props) => (props.$isOpen ? 1 : 0)};
   transform: translateX(${(props) => (props.$isOpen ? "0" : "-20px")});
   transition: all 0.3s ease;
@@ -76,19 +76,14 @@ const NavItem = styled(Link)<{ $active: boolean; $isOpen: boolean }>`
   align-items: center;
   padding: 12px;
   border-radius: 8px;
-  color: ${(props) => (props.$active ? props.theme.colors.primary : "#666")};
+  color: ${(props) => (props.$active ? "#f72584" : "#666")};
   text-decoration: none;
   transition: all 0.2s ease;
-  background-color: ${(props) =>
-    props.$active
-      ? `rgba(${props.theme.colors.primaryRgb}, 0.1)`
-      : "transparent"};
+  background-color: ${(props) => (props.$active ? `#F7258515` : "transparent")};
 
   &:hover {
     background-color: ${(props) =>
-      props.$active
-        ? `rgba(${props.theme.colors.primaryRgb}, 0.15)`
-        : "rgba(0, 0, 0, 0.05)"};
+      props.$active ? `#F7258515` : "rgba(0, 0, 0, 0.05)"};
   }
 
   .icon {
@@ -98,7 +93,7 @@ const NavItem = styled(Link)<{ $active: boolean; $isOpen: boolean }>`
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    color: ${(props) => (props.$active ? props.theme.colors.primary : "#666")};
+    color: ${(props) => (props.$active ? "#f72584" : "#666")};
   }
 `;
 

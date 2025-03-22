@@ -10,6 +10,7 @@ import {
 import { fetchMockDataForCity } from "../../utils/mockData";
 import { IoSearch } from "react-icons/io5";
 import { get } from "../../api/apiClient";
+import { transformLatLongData } from "../../utils/common";
 
 const SearchContainer = styled.div`
   margin-bottom: ${(props) => props.theme.spacing.md};
@@ -88,18 +89,7 @@ const SearchResults = styled.div`
 `;
 
 // Create a list of common city suggestions
-const popularCities = [
-  "New York",
-  "Los Angeles",
-  "Chicago",
-  "Houston",
-  "Phoenix",
-  "Philadelphia",
-  "San Antonio",
-  "San Diego",
-  "Dallas",
-  "San Jose",
-];
+const popularCities = ["New York", "Gurgaon"];
 
 const CitySearch: React.FC = () => {
   const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
@@ -109,11 +99,10 @@ const CitySearch: React.FC = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const suggestionsRef = useRef<HTMLUListElement>(null);
 
-  const getData = async () => {
-    const result = await get(
-      "api/potholes/city/gurgaon/nearby?latitude=37.7749&longitude=-122.4194&radiusKm=5"
-    );
+  const getData = async (city = "gurgaon") => {
+    const result = await get(`api/potholes/city/${city}/nearby?radiusKm=8`);
     console.log("result", result);
+    return result;
   };
 
   // Filter suggestions based on input
@@ -160,12 +149,17 @@ const CitySearch: React.FC = () => {
     setIsLoading(true);
 
     // Fetch mock data for the selected city
-    const { issues, viewport } = fetchMockDataForCity(city);
+    const { viewport } = fetchMockDataForCity(city);
 
-    await getData();
+    try {
+      const rest = await getData(city);
+
+      console.log("hshhs", rest);
+      const tOutput = transformLatLongData(rest ?? []);
+      setRoadIssues(tOutput);
+    } catch {}
 
     // Update state
-    setRoadIssues(issues);
     setMapViewport(viewport);
     setIsLoading(false);
   };

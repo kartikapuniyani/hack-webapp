@@ -8,7 +8,7 @@ export const selectedIssueAtom = atom<RoadIssue | null>(null);
 
 // Map view settings
 export const mapViewportAtom = atom<MapViewport>({
-  center: { lat: 40.7128, lng: -74.006 }, // Default to New York City
+  center: { lat: 28.4595, lng: 77.0266 }, // Default to Gurugram
   zoom: 12,
 });
 
