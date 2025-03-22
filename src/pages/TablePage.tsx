@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { useAtom } from "jotai";
 import { roadIssuesAtom } from "../store/atoms";
-import { fetchMockDataForCity } from "../utils/mockData";
+import { useSetRoad } from "../hooks/useSetRoad";
 
 // Custom cell components
 const IdCell = ({ id }: { id: string }) => {
@@ -402,19 +402,14 @@ const PageButton = styled.button<{ $active?: boolean }>`
 const ITEMS_PER_PAGE = 5;
 
 const TablePage: React.FC = () => {
-  const [roadIssues, setRoadIssues] = useAtom(roadIssuesAtom);
+  const [roadIssues] = useAtom(roadIssuesAtom);
   const [currentPage, setCurrentPage] = useState(1);
 
   const indRoadIssues = roadIssues.reduce<any>((acc, curr) => {
     return [...acc, ...(curr?.list ?? [])];
   }, []);
 
-  useEffect(() => {
-    if (roadIssues.length === 0) {
-      const { issues } = fetchMockDataForCity("new york");
-      setRoadIssues(issues);
-    }
-  }, [roadIssues.length, setRoadIssues]);
+  useSetRoad();
 
   // Pagination calculations
   const totalPages = Math.ceil(indRoadIssues.length / ITEMS_PER_PAGE);

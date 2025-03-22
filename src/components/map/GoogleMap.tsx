@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useCallback, useState, useEffect } from "react";
 import {
   GoogleMap,
@@ -373,7 +374,7 @@ const RoadIssuesMap: React.FC = () => {
     showSpeedBreakersAtom
   );
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [showHeatmap, setShowHeatmap] = useState(false);
+  const [showHeatmap, setShowHeatmap] = useState(true);
   const [showMarkers, setShowMarkers] = useState(true);
   const [showLegend, setShowLegend] = useState(true);
   const [isControlsMinimized, setIsControlsMinimized] = useState(false);
@@ -403,21 +404,32 @@ const RoadIssuesMap: React.FC = () => {
   // Prepare heatmap data when road issues change
   useEffect(() => {
     if (isLoaded && window.google) {
+      console.log("roadIssues", roadIssues);
       // Prepare all points
-      const allPoints = roadIssues.map(
-        (issue) =>
-          new window.google.maps.LatLng(issue.position.lat, issue.position.lng)
-      );
+      const allPoints = roadIssues
+        .reduce<any>((acc, curr) => {
+          return [...acc, ...(curr.list ?? [])];
+        }, [])
+        .map(
+          (issue: any) =>
+            new window.google.maps.LatLng(
+              issue.location.lat,
+              issue.location.lon
+            )
+        );
       setHeatmapData(allPoints);
 
       // Prepare pothole points
       const potholePoints = roadIssues
         .filter((issue) => issue.type === "pothole")
+        .reduce<any>((acc, curr) => {
+          return [...acc, ...(curr.list ?? [])];
+        }, [])
         .map(
-          (issue) =>
+          (issue: any) =>
             new window.google.maps.LatLng(
-              issue.position.lat,
-              issue.position.lng
+              issue.location.lat,
+              issue.location.lon
             )
         );
       setHeatmapPotholes(potholePoints);
@@ -425,11 +437,14 @@ const RoadIssuesMap: React.FC = () => {
       // Prepare speed breaker points
       const speedBreakerPoints = roadIssues
         .filter((issue) => issue.type === "speedBreaker")
+        .reduce<any>((acc, curr) => {
+          return [...acc, ...(curr.list ?? [])];
+        }, [])
         .map(
-          (issue) =>
+          (issue: any) =>
             new window.google.maps.LatLng(
-              issue.position.lat,
-              issue.position.lng
+              issue.location.lat,
+              issue.location.lon
             )
         );
       setHeatmapSpeedBreakers(speedBreakerPoints);
@@ -713,6 +728,7 @@ const RoadIssuesMap: React.FC = () => {
                       type="checkbox"
                       id="heatmap-toggle"
                       checked={showHeatmap}
+                      disabled
                       onChange={() => setShowHeatmap(!showHeatmap)}
                     />
                     <ToggleSlider />
