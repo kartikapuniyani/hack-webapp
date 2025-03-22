@@ -9,8 +9,12 @@ import {
 } from "../../store/atoms";
 import { fetchMockDataForCity } from "../../utils/mockData";
 import { IoSearch } from "react-icons/io5";
-import { get } from "../../api/apiClient";
-import { transformLatLongData } from "../../utils/common";
+import {
+  getAnomalySeverity,
+  processAnomalyData,
+  transformLatLongData,
+} from "../../utils/common";
+import { getData } from "../../api/common";
 
 const SearchContainer = styled.div`
   margin-bottom: ${(props) => props.theme.spacing.md};
@@ -99,12 +103,6 @@ const CitySearch: React.FC = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const suggestionsRef = useRef<HTMLUListElement>(null);
 
-  const getData = async (city = "gurgaon") => {
-    const result = await get(`api/potholes/city/${city}/nearby?radiusKm=8`);
-    console.log("result", result);
-    return result;
-  };
-
   // Filter suggestions based on input
   const filteredSuggestions = popularCities.filter((city) =>
     city.toLowerCase().includes(searchQuery.toLowerCase())
@@ -142,7 +140,7 @@ const CitySearch: React.FC = () => {
     setIsLoading(false);
   };
 
-  const handleSuggestionClick = async (city: string) => {
+  const handleSuggestionClick = async (city = "gurgaon") => {
     setSearchQuery(city);
     setShowSuggestions(false);
 
@@ -154,10 +152,20 @@ const CitySearch: React.FC = () => {
     try {
       const rest = await getData(city);
 
-      console.log("hshhs", rest);
-      const tOutput = transformLatLongData(rest ?? []);
+      // Process and cluster the data using our utility
+      const clusteredData = processAnomalyData(rest, 10); // 5 meter radius
+
+      // Add severity scores to each cluster
+      const enhancedData = clusteredData.map((cluster) => ({
+        ...cluster,
+        severity: getAnomalySeverity(cluster),
+      }));
+
+      const tOutput = transformLatLongData(enhancedData ?? []);
       setRoadIssues(tOutput);
-    } catch {}
+    } catch {
+      console.log("Error");
+    }
 
     // Update state
     setMapViewport(viewport);

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
@@ -17,8 +18,8 @@ const IdCell = ({ id }: { id: string }) => {
 const TypeCell = ({ type }: { type: "pothole" | "speedBreaker" }) => {
   return (
     <TypeContainer>
-      <TypeBadge $type={type}>
-        {type === "pothole" ? "Pothole" : "Speed Breaker"}
+      <TypeBadge $type={type.toLowerCase()}>
+        {type.toLowerCase() === "pothole" ? "Pothole" : "Speed Breaker"}
       </TypeBadge>
     </TypeContainer>
   );
@@ -27,8 +28,8 @@ const TypeCell = ({ type }: { type: "pothole" | "speedBreaker" }) => {
 const LocationCell = ({ lat, lng }: { lat: number; lng: number }) => {
   return (
     <LocationContainer>
-      <CoordinateValue>{lat.toFixed(4)}</CoordinateValue>,{" "}
-      <CoordinateValue>{lng.toFixed(4)}</CoordinateValue>
+      <CoordinateValue>{lat?.toFixed(4)}</CoordinateValue>,{" "}
+      <CoordinateValue>{lng?.toFixed(4)}</CoordinateValue>
       <LocationTooltip>
         <i className="fas fa-map-marker-alt"></i>
         View on map
@@ -37,6 +38,7 @@ const LocationCell = ({ lat, lng }: { lat: number; lng: number }) => {
   );
 };
 
+// @ts-ignore
 const SeverityCell = ({ severity }: { severity?: number }) => {
   if (severity === undefined) return <span>N/A</span>;
 
@@ -200,7 +202,7 @@ const TypeContainer = styled.div`
   align-items: center;
 `;
 
-const TypeBadge = styled.span<{ $type: "pothole" | "speedBreaker" }>`
+const TypeBadge = styled.span<{ $type: string }>`
   display: inline-block;
   padding: 6px 12px;
   border-radius: 50px;
@@ -403,6 +405,10 @@ const TablePage: React.FC = () => {
   const [roadIssues, setRoadIssues] = useAtom(roadIssuesAtom);
   const [currentPage, setCurrentPage] = useState(1);
 
+  const indRoadIssues = roadIssues.reduce<any>((acc, curr) => {
+    return [...acc, ...(curr?.list ?? [])];
+  }, []);
+
   useEffect(() => {
     if (roadIssues.length === 0) {
       const { issues } = fetchMockDataForCity("new york");
@@ -411,10 +417,10 @@ const TablePage: React.FC = () => {
   }, [roadIssues.length, setRoadIssues]);
 
   // Pagination calculations
-  const totalPages = Math.ceil(roadIssues.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(indRoadIssues.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentItems = roadIssues.slice(startIndex, endIndex);
+  const currentItems = indRoadIssues.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -470,6 +476,8 @@ const TablePage: React.FC = () => {
     return pageNumbers;
   };
 
+  console.log("currentItems", indRoadIssues);
+
   return (
     <PageContainer>
       <TableContainer>
@@ -479,35 +487,35 @@ const TablePage: React.FC = () => {
               <th>ID</th>
               <th>Type</th>
               <th>Location</th>
-              <th>Severity</th>
+              {/* <th>Severity</th> */}
               <th>Reported At</th>
               <th>Verified Count</th>
               <th>Status</th>
             </tr>
           </TableHeader>
           <TableBody>
-            {currentItems.map((issue) => (
+            {currentItems.map((issue: any) => (
               <tr key={issue.id}>
                 <td>
                   <IdCell id={issue.id} />
                 </td>
                 <td>
-                  <TypeCell type={issue.type} />
+                  <TypeCell type={issue.anomalyType} />
                 </td>
                 <td>
                   <LocationCell
-                    lat={issue.position.lat}
-                    lng={issue.position.lng}
+                    lat={issue.location?.lat}
+                    lng={issue.location?.lon as any}
                   />
                 </td>
-                <td>
+                {/* <td>
                   <SeverityCell severity={issue.severity} />
+                </td> */}
+                <td>
+                  <DateTimeCell timestamp={issue.reportDate} />
                 </td>
                 <td>
-                  <DateTimeCell timestamp={issue.reportedAt} />
-                </td>
-                <td>
-                  <VerifiedCountCell count={issue.verifiedCount || 0} />
+                  <VerifiedCountCell count={issue.verifiedCount || 1} />
                 </td>
                 <td>
                   <StatusCell status="Pending" />

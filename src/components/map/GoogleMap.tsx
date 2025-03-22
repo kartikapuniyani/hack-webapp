@@ -553,13 +553,23 @@ const RoadIssuesMap: React.FC = () => {
   };
 
   // Count statistics
-  const potholeCount = roadIssues.filter(
-    (issue) => issue.type === "pothole"
-  ).length;
-  const speedBreakerCount = roadIssues.filter(
-    (issue) => issue.type === "speedBreaker"
-  ).length;
-  const visibleCount = filteredIssues.length;
+  const potholeCount = roadIssues
+    .filter((issue) => issue.type === "pothole")
+    .reduce((acc, curr) => {
+      return acc + (curr.verifiedCount ?? 0);
+    }, 0);
+  // const speedBreakerCount = roadIssues.filter(
+  //   (issue) => issue.type === "speedBreaker"
+  // ).length;
+  const visibleCount = roadIssues
+    .filter((issue) => issue.type === "pothole")
+    .reduce((acc, curr) => {
+      if ((curr?.verifiedCount ?? 0) < 15) {
+        return acc;
+      }
+
+      return acc + 1;
+    }, 0);
 
   if (loadError) {
     return (
@@ -582,7 +592,7 @@ const RoadIssuesMap: React.FC = () => {
       </MapContainer>
     );
   }
-
+  console.log("roadIssues", roadIssues);
   return (
     <MapWrapper>
       {/* Stats Cards */}
@@ -591,7 +601,11 @@ const RoadIssuesMap: React.FC = () => {
           <StatsIconWrapper>
             <FiActivity />
           </StatsIconWrapper>
-          <StatsValue>{roadIssues.length}</StatsValue>
+          <StatsValue>
+            {roadIssues.reduce((acc, curr) => {
+              return acc + (curr.verifiedCount ?? 0);
+            }, 0)}
+          </StatsValue>
           <StatsLabel>Total Issues</StatsLabel>
         </StatsCard>
 
@@ -602,21 +616,21 @@ const RoadIssuesMap: React.FC = () => {
           <StatsValue>{potholeCount}</StatsValue>
           <StatsLabel>Potholes</StatsLabel>
         </StatsCard>
-
+        {/* 
         <StatsCard>
           <StatsIconWrapper>
             <MdSpeed />
           </StatsIconWrapper>
           <StatsValue>{speedBreakerCount}</StatsValue>
           <StatsLabel>Speed Breakers</StatsLabel>
-        </StatsCard>
+        </StatsCard> */}
 
         <StatsCard>
           <StatsIconWrapper>
             <FiEye />
           </StatsIconWrapper>
           <StatsValue>{visibleCount}</StatsValue>
-          <StatsLabel>Visible Issues</StatsLabel>
+          <StatsLabel>Severe Areas</StatsLabel>
         </StatsCard>
       </StatsContainer>
 
@@ -767,10 +781,10 @@ const RoadIssuesMap: React.FC = () => {
                     <MarkerDot $type="pothole" />
                     <span>Pothole</span>
                   </LegendItem>
-                  <LegendItem>
+                  {/* <LegendItem>
                     <MarkerDot $type="speedBreaker" />
                     <span>Speed Breaker</span>
-                  </LegendItem>
+                  </LegendItem> */}
                 </>
               )}
             </Legend>
@@ -786,7 +800,7 @@ const RoadIssuesMap: React.FC = () => {
             filteredIssues.map((issue) => (
               <CustomMarker
                 key={issue.id}
-                position={issue.position}
+                position={{ lat: issue.position.lat, lng: issue.position.lon }}
                 type={issue.type}
                 onClick={() => handleMarkerClick(issue)}
               />

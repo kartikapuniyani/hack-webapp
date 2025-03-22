@@ -6,8 +6,13 @@ import { roadIssuesAtom, mapViewportAtom } from "../store/atoms";
 import RoadIssuesMap from "../components/map/GoogleMap";
 import CitySearch from "../components/search/CitySearch";
 import MapFilters from "../components/map/MapFilters";
-import MapLegend from "../components/map/MapLegend";
 import { fetchMockDataForCity } from "../utils/mockData";
+import { getData } from "../api/common";
+import {
+  getAnomalySeverity,
+  processAnomalyData,
+  transformLatLongData,
+} from "../utils/common";
 
 const MapContainer = styled.div`
   position: relative;
@@ -25,9 +30,31 @@ const MapPage: React.FC = () => {
 
   useEffect(() => {
     // Initialize with mock data for a default city
-    const { issues, viewport } = fetchMockDataForCity("new york");
-    setRoadIssues(issues);
-    setMapViewport(viewport);
+    const { viewport } = fetchMockDataForCity("gurgaon");
+
+    const getDatappp = async () => {
+      try {
+        const rest = await getData("gurgaon");
+
+        // Process and cluster the data using our utility
+        const clusteredData = processAnomalyData(rest, 10); // 5 meter radius
+
+        // Add severity scores to each cluster
+        const enhancedData = clusteredData.map((cluster) => ({
+          ...cluster,
+          severity: getAnomalySeverity(cluster),
+        }));
+
+        const tOutput = transformLatLongData(enhancedData ?? []);
+        console.log("tOutput", tOutput);
+        setRoadIssues(tOutput);
+        setMapViewport(viewport);
+      } catch {
+        console.log("Error");
+      }
+    };
+
+    getDatappp();
   }, [setRoadIssues, setMapViewport]);
 
   return (

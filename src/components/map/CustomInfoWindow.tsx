@@ -159,17 +159,17 @@ const CustomInfoWindow: React.FC<CustomInfoWindowProps> = ({
       day: "numeric",
     });
   };
-
+  console.log("issue", issue);
   return (
     <InfoWindow
-      position={issue.position}
+      position={{ lat: issue.position.lat, lng: issue.position.lon }}
       onCloseClick={onClose}
       options={{
         pixelOffset: new window.google.maps.Size(12, -15),
         maxWidth: 320,
-        headerContent: `<strong>${
+        headerContent: `${
           issue.type === "pothole" ? "Pothole" : "Speed breaker"
-        }</strong>`,
+        }`,
       }}
     >
       <InfoWindowContainer>
